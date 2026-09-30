@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#173b57">
+<title>Controle Financeiro • Comerciale Local</title>
+<style>
+:root{--bg:#0f1720;--card:#18232e;--ink:#f3f7fa;--muted:#a9b7c2;--brand:#2e6f95;--brand2:#4fa3d1;--line:#2b3b48;--good:#35c77a;--bad:#ff5c5c;--warn:#f2b84b;--shadow:0 6px 18px rgba(0,0,0,.28)}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;font-size:17px}
+header{position:sticky;top:0;z-index:10;background:var(--brand);color:white;padding:14px 16px;box-shadow:var(--shadow)}
+header .row{max-width:1050px;margin:auto;display:flex;align-items:center;gap:12px}.logo{font-size:28px}.title{font-weight:800;font-size:20px}.subtitle{font-size:13px;opacity:.85}
+main{max-width:1050px;margin:auto;padding:16px 16px 92px}.toolbar,.grid,.formgrid{display:grid;gap:12px}.toolbar{grid-template-columns:48px 1fr 48px;margin-bottom:14px}.month{text-align:center;font-size:21px;font-weight:800}
+button,input,select{font:inherit;min-height:46px;border-radius:12px;border:1px solid var(--line);padding:9px 12px;background:white;color:var(--ink)}
+button{cursor:pointer;font-weight:750}.primary{background:var(--brand);color:white;border-color:var(--brand)}.soft{background:#eaf2f7}.danger{color:var(--bad);background:white}
+.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.metric,.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow)}
+.metric .label{font-size:15px;color:var(--muted);font-weight:700}.metric .value{font-size:27px;font-weight:900;margin-top:5px;letter-spacing:-.4px}.negative{background:white!important;color:var(--bad)!important}
+#mFixed,#mCards{color:var(--bad)}
+.amount.outgoing{color:var(--bad)}
+.panel{margin-top:14px}.panel h2{font-size:20px;margin:0 0 12px}.formgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.full{grid-column:1/-1}
+.tabs{display:flex;gap:8px;overflow:auto;margin:12px 0}.tabs button.active{background:var(--brand);color:white}
+.hidden{display:none!important}.list{display:grid;gap:9px}.item{background:white;border:1px solid var(--line);border-radius:14px;padding:12px;display:grid;grid-template-columns:1fr auto;gap:8px}.item strong{font-size:17px}.meta{color:var(--muted);font-size:14px;margin-top:3px}.amount{font-weight:900;font-size:18px;text-align:right}.actions{display:flex;gap:6px;justify-content:flex-end;margin-top:6px}.actions button{min-height:36px;padding:5px 9px;font-size:13px}
+nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(7,1fr);z-index:20;padding-bottom:env(safe-area-inset-bottom)}
+nav button{border:0;border-radius:0;min-height:62px;padding:5px 2px;font-size:12px;color:var(--muted)}nav button span{display:block;font-size:21px}nav button.active{color:var(--brand);background:#eef5f9}
+.badge{display:inline-block;border-radius:999px;padding:3px 8px;font-size:12px;font-weight:800;background:#eef3f5;color:var(--brand)}
+.notice{padding:11px 13px;background:#fff7e6;border:1px solid #f1d39a;border-radius:12px;color:#6d4b00;font-size:14px}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:9px 7px;border-bottom:1px solid var(--line);text-align:left}th{color:var(--muted)}
+@media(max-width:650px){.grid,.formgrid{grid-template-columns:1fr}.metric .value{font-size:25px}main{padding-left:11px;padding-right:11px}.panel{padding:13px}}
+button,input,select,textarea{font-size:18px !important;color:#111827}
+button:not(.primary), .soft, .danger{color:#111827 !important}
+.actions button{font-size:16px !important}
+nav button{font-size:14px !important}
+.meta,.notice,table{font-size:16px !important}
+.metric .label{font-size:17px !important}
+.item strong{font-size:18px !important}
+.badge{font-size:14px !important}
+input::placeholder,textarea::placeholder{color:#4b5563 !important}
+select option{color:#111827 !important;background:#fff !important}
+button,input,select,textarea,label{font-size:19px !important;font-weight:800 !important}
+button.primary{color:#ffffff !important;font-weight:900 !important}
+nav button{font-size:15px !important;font-weight:900 !important;color:#243746 !important}
+nav button.active{color:#173b57 !important}
+.item,.item strong,.item .meta,.item .amount{color:#111827 !important}
+.item .meta{color:#374151 !important;font-weight:700 !important}
+.notice{font-weight:750 !important}
+.paid-item{border:2px solid var(--good)!important;background:#eafaf1!important}
+.paid-item strong,.paid-item .meta,.paid-item .amount{color:#176b3a!important}
+.paid-btn{background:var(--good)!important;color:#fff!important;border-color:var(--good)!important}
+.bill-month{margin-bottom:12px}
+.bill-head{font-weight:900;font-size:18px;margin-bottom:7px}
+
+.quick-box{border:2px solid var(--warn);background:#fff7e6!important;color:#111827!important}
+.quick-box h2,.quick-box .meta{color:#111827!important}
+.pending-item{border-left:6px solid var(--warn)!important}
+.mic-listening{background:var(--bad)!important;color:white!important}
+
+/* Resumo visual de gastos do mês */
+.spend-summary{display:grid;gap:12px}.spend-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:14px;background:var(--card,#fff)}.spend-row strong{font-size:18px}.spend-total{border:2px solid rgba(41,182,246,.35);font-size:20px}.spend-chart-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;padding:18px 8px 4px}.spend-pie{width:min(230px,68vw);aspect-ratio:1;border-radius:50%;position:relative;box-shadow:0 8px 24px rgba(0,0,0,.18)}.spend-pie:after{content:"";position:absolute;inset:25%;border-radius:50%;background:var(--panel,#16232d)}.spend-pie-center{position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;text-align:center;font-weight:800;font-size:16px;pointer-events:none}.spend-legend{width:100%;display:grid;gap:8px}.spend-legend-row{display:flex;justify-content:space-between;gap:12px;font-weight:700}.spend-dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:8px}.dot-account{background:#42a5f5}.dot-fixed{background:#ffb300}.dot-card{background:#7e57c2}
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<style>
+input, select, textarea { color-scheme: light; }
+input:not([type="button"]):not([type="submit"]):not([type="reset"]), select, textarea { background:#fff !important; color:#111827 !important; }
+input::placeholder, textarea::placeholder { color:#6b7280 !important; opacity:1; }
+select option { background:#fff !important; color:#111827 !important; }
+button[style*="background:#fff"], button[style*="background: #fff"], .btn-light, .secondary { color:#111827; }
+</style>
+</head>
+<body>
+<header><div class="row"><div class="logo">💰</div><div><div class="title">Controle Financeiro</div><div class="subtitle">Organize hoje. Enxergue os próximos meses.</div></div></div></header>
+<main>
+<section id="dashboard" class="screen">
+  <div class="toolbar"><button onclick="moveMonth(-1)">‹</button><button class="month" id="monthLabel" onclick="goCurrent()"></button><button onclick="moveMonth(1)">›</button></div>
+  <div class="grid">
+    <div class="metric"><div class="label">↩️ Saldo do mês anterior</div><input id="prevMonthBalance" type="number" step="0.01" placeholder="Digite o saldo" onchange="savePrevMonthBalance()" style="margin-top:8px"><div class="meta">Manual • apenas informativo</div></div>
+    <div class="metric"><div class="label">💵 Receitas / previsão do mês</div><div class="value" id="mRevenue">R$ 0,00</div><div class="meta" id="mRevenueMeta">Previstas e recebidas</div></div>
+    <div class="metric"><div class="label">✓ Receber receita prevista</div><button id="dashReceiveBtn" class="primary" type="button" onclick="payRevenueFromDash()" style="margin-top:10px;width:100%">Pagar / receber receita</button><div class="meta">Altera prevista para recebida</div></div>
+    <div class="metric"><div class="label">📌 Despesas fixas do mês</div><div class="value outgoing" id="mFixed">R$ 0,00</div><div class="meta">Somente do mês selecionado</div></div>
+    <div class="metric"><div class="label">💳 Faturas dos cartões do mês</div><div class="value outgoing" id="mCards">R$ 0,00</div><div class="meta">Conforme vencimento</div></div>
+    <div class="metric"><div class="label">📊 Saldo previsto</div><div class="value" id="mForecast">R$ 0,00</div><div class="meta">Receitas − fixas − cartões</div></div>
+  </div>
+  <div class="panel"><div class="notice"><strong>Regra do saldo previsto:</strong> considera as receitas do mês e desconta as despesas fixas e as faturas dos cartões. O saldo das contas bancárias continua disponível somente na tela Contas.</div></div>
+  <div class="panel"><h2>Resumo do mês</h2><div id="summary" class="list"></div></div>
+</section>
+
+<section id="launch" class="screen hidden">
+ <div class="panel quick-box"><h2>🎤 Lançamento rápido</h2>
+  <div class="meta" style="margin-bottom:10px">Toque no campo abaixo. O teclado do celular será aberto; use o 🎤 do próprio teclado para falar. Ex.: “Almoço 48 reais” ou “Posto 250”.</div>
+  <div class="formgrid"><textarea id="quickText" class="full" rows="3" inputmode="text" enterkeyhint="done" autocomplete="off" autocapitalize="sentences" placeholder="🎤 Toque aqui para falar ou digitar" style="width:100%;min-height:88px;resize:vertical;padding:14px;font-size:20px!important" onclick="this.focus()"></textarea><button type="button" class="primary full" onclick="saveQuick()">⚡ Salvar rápido</button></div>
+ </div>
+ <div class="panel"><h2>🟡 Para completar</h2><div id="quickPending" class="list"></div></div>
+ <div class="panel"><h2>➕ Novo lançamento</h2>
+  <div class="tabs"><button id="tExpense" class="active" onclick="setKind('expense')">Despesa</button><button id="tRevenue" onclick="setKind('revenue')">Receita</button><button id="tFixed" onclick="setKind('fixed')">Conta fixa</button></div>
+  <form id="entryForm" class="formgrid">
+   <select id="profile" required></select><input id="date" type="date" required>
+   <input id="desc" placeholder="Descrição" required><input id="value" type="number" step="0.01" min="0" placeholder="Valor" required>
+   <select id="category"></select>
+   <div id="expenseExtra" class="full formgrid"><select id="payType" onchange="refreshDest()"><option value="account">Conta bancária</option><option value="card">Cartão</option></select><input id="installments" type="number" min="1" max="120" value="1" placeholder="Parcelas"></div>
+   <select id="dest"></select>
+   <div id="revenueExtra" class="full formgrid hidden"><select id="source"><option value="">Origem da receita</option></select><select id="revStatus"><option value="planned">Prevista</option><option value="received">Recebida</option></select><div class="notice">Receita prevista aparece no Dashboard, mas só altera o saldo da conta quando for marcada como recebida.</div></div>
+   <div id="fixedExtra" class="full formgrid hidden"><input id="dueDay" type="number" min="1" max="31" placeholder="Dia do vencimento"><div class="notice">A conta fixa se repete mensalmente. Depois você poderá marcar cada mês como paga.</div></div>
+   <button class="primary full" type="submit">Salvar lançamento</button>
+  </form>
+ </div>
+ <div class="panel"><h2>Histórico</h2>
+   <div class="tabs" id="historyTabs">
+    <button class="active" type="button" onclick="setHistoryFilter('expense',this)">Despesas</button>
+    <button type="button" onclick="setHistoryFilter('revenue',this)">Receitas</button>
+    <button type="button" onclick="setHistoryFilter('fixed',this)">Despesas fixas</button>
+    <button type="button" onclick="setHistoryFilter('profile',this)">Por perfil</button>
+   </div>
+   <div id="historyProfileWrap" class="hidden" style="margin-bottom:10px"><select id="historyProfile" onchange="renderEntries()"></select></div>
+   <div id="entries" class="list"></div>
+  </div>
+</section>
+
+<section id="cadastros" class="screen hidden">
+ <div class="panel"><h2>👥 Perfis</h2><form id="profileForm" class="formgrid"><input id="profileName" placeholder="Nome do perfil" required><button class="primary">Adicionar perfil</button></form><div id="profileList" class="list" style="margin-top:10px"></div></div>
+ <div class="panel"><h2>🏦 Cadastro de contas</h2><form id="accountForm" class="formgrid"><input id="accountName" placeholder="Banco / nome da conta" required><select id="accountProfile"></select><input id="initial" type="number" step="0.01" value="0" placeholder="Saldo inicial"><button class="primary">Adicionar conta</button></form></div>
+ <div class="panel"><h2>💳 Cadastro de cartões</h2><form id="cardForm" class="formgrid"><input id="cardName" placeholder="Nome do cartão" required><select id="cardProfile"></select><input id="closing" type="number" min="1" max="31" placeholder="Dia fechamento" required><input id="due" type="number" min="1" max="31" placeholder="Dia vencimento" required><input id="limit" type="number" step="0.01" min="0" placeholder="Limite (opcional)"><button class="primary">Adicionar cartão</button></form></div>
+ <div class="panel"><h2>🏷️ Categorias</h2><form id="categoryForm" class="formgrid"><input id="categoryName" placeholder="Nome da nova categoria" required><button class="primary">Adicionar categoria</button></form><div id="categoryList" class="list" style="margin-top:10px"></div></div>
+ <div class="panel"><h2>🏢 Origens de receita</h2><form id="sourceForm" class="formgrid"><input id="sourceName" placeholder="Empresa / origem da receita" required><button class="primary">Adicionar origem</button></form><div id="sourceList" class="list" style="margin-top:10px"></div></div>
+ <div class="panel"><h2>🛡️ Backup dos dados</h2><div class="formgrid"><button class="primary" type="button" onclick="backupData()">⬇️ Fazer backup</button><label style="display:flex;align-items:center;justify-content:center;min-height:46px;border:1px solid var(--line);border-radius:12px;background:white;font-weight:750;cursor:pointer">⬆️ Restaurar backup<input id="restoreFile" type="file" accept=".json,application/json" style="display:none" onchange="restoreData(this.files[0])"></label></div><div class="meta" style="margin-top:8px">Use antes de trocar de arquivo/versão.</div></div>
+</section>
+
+<section id="cards" class="screen hidden">
+ <div class="panel"><h2>💳 Cartões cadastrados</h2><div id="cardList" class="list"></div></div>
+ <div class="panel"><h2>Próximas 12 faturas</h2><div id="futureBills"></div></div>
+</section>
+
+<section id="accounts" class="screen hidden">
+ <div class="panel"><h2>🏦 Contas cadastradas</h2><div id="accountList" class="list"></div></div>
+ <div class="panel"><h2>📌 Contas fixas do mês</h2><div id="fixedMonthList" class="list"></div></div>
+ <div class="panel"><h2>Movimentações do mês nas contas</h2><div id="accountMonthList" class="list"></div></div>
+</section>
+
+<section id="reports" class="screen hidden">
+ <div class="panel"><h2>📊 Relatório de lançamentos</h2>
+ <div class="formgrid"><input id="search" placeholder="Buscar descrição..." oninput="renderReports()"><select id="reportType" onchange="renderReports()"><option value="">Todos os tipos</option><option value="expense">Despesas</option><option value="revenue">Receitas</option><option value="fixed">Contas fixas</option></select></div>
+ <div style="overflow:auto;margin-top:10px"><table><thead><tr><th>Data</th><th>Descrição</th><th>Perfil</th><th>Conta/Cartão</th><th>Tipo</th><th>Valor</th></tr></thead><tbody id="reportRows"></tbody></table></div>
+ </div>
+</section>
+<section id="help" class="screen hidden">
+ <div class="panel"><h2>📘 Modo de Uso</h2><div class="notice"><strong>Comece pelos Cadastros.</strong> Cadastre primeiro os perfis, depois as contas bancárias, cartões, categorias e origens de receita.</div></div>
+ <div class="panel"><h2>🏠 Dashboard</h2><div class="meta">Mostra a visão geral do mês: receitas previstas e recebidas, despesas fixas, faturas dos cartões, saldo previsto e gráfico de gastos por categoria. Use as setas para consultar outros meses.</div></div>
+ <div class="panel"><h2>➕ Lançar</h2><div class="meta">Registre despesas, receitas e contas fixas. Em compras no cartão, informe o número de parcelas: o aplicativo distribui automaticamente as parcelas nas faturas conforme fechamento e vencimento do cartão. O lançamento rápido permite falar ou digitar o básico e completar os detalhes depois.</div></div>
+ <div class="panel"><h2>⚙️ Cadastros</h2><div class="meta">Centraliza Perfis, Contas, Cartões, Categorias, Origens de receita e Backup. Antes de trocar de aparelho ou versão, faça um backup.</div></div>
+ <div class="panel"><h2>💳 Cartões</h2><div class="meta">Consulte os cartões cadastrados e as próximas 12 faturas. Os valores são formados pelos lançamentos de cada cartão e suas parcelas.</div></div>
+ <div class="panel"><h2>🏦 Contas</h2><div class="meta">Consulte as contas cadastradas, contas fixas do mês e movimentações. Receitas previstas só entram na conta quando forem marcadas como recebidas.</div></div>
+ <div class="panel"><h2>📊 Relatórios</h2><div class="meta">Pesquise lançamentos por descrição e filtre por tipo para revisar despesas, receitas e contas fixas.</div></div>
+ <div class="panel"><h2>🛡️ Segurança dos dados</h2><div class="meta">Esta edição mantém os dados neste navegador/aparelho. Faça backups regularmente e guarde o arquivo de backup em local seguro.</div></div>
+</section>
+</main>
+<nav>
+<button class="active" onclick="showScreen('dashboard',this)"><span>🏠</span>Dashboard</button>
+<button onclick="showScreen('launch',this)"><span>➕</span>Lançar</button>
+<button onclick="showScreen('cadastros',this)"><span>⚙️</span>Cadastros</button>
+<button onclick="showScreen('cards',this)"><span>💳</span>Cartões</button>
+<button onclick="showScreen('accounts',this)"><span>🏦</span>Contas</button>
+<button onclick="showScreen('reports',this)"><span>📊</span>Relatórios</button>
+<button onclick="showScreen('help',this)"><span>📘</span>Ajuda</button>
+</nav>
+<script>
+const KEY='financeiro_comercial_v2_cliente_novo';
+const INIT_KEY=KEY+'_inicializado';
+const EMPTY_DB={profiles:[],accounts:[],cards:[],entries:[],sources:[],categories:['Geral','Mercado','Moradia','Transporte','Saúde','Lazer','Trabalho','Outros'],fixedPayments:{},cardPayments:{},quickEntries:[],prevMonthBalances:{}};
+let db;
+if(localStorage.getItem(INIT_KEY)!=='sim'){
+  db=JSON.parse(JSON.stringify(EMPTY_DB));
+  localStorage.setItem(KEY,JSON.stringify(db));
+  localStorage.setItem(INIT_KEY,'sim');
+}else{
+  db=JSON.parse(localStorage.getItem(KEY)||'null')||JSON.parse(JSON.stringify(EMPTY_DB));
+}
+if(!db.sources) db.sources=[];
+if(!db.categories) db.categories=['Geral','Mercado','Moradia','Transporte','Saúde','Lazer','Trabalho','Outros'];
+if(!db.fixedPayments) db.fixedPayments={};
+if(!db.cardPayments) db.cardPayments={};
+if(!db.quickEntries) db.quickEntries=[];
+let kind='expense', editingEntryId=null, historyFilter='expense', viewDate=new Date(); viewDate.setDate(1);
+const $=id=>document.getElementById(id), money=n=>Number(n||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+function save(){
+  localStorage.setItem(KEY,JSON.stringify(db));
+  localStorage.setItem(KEY+'_changed',Date.now().toString());
+  renderAll();
+  // Edição comercial local: sem vínculo com a base pessoal.
+}
+function ym(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
+function parseDate(s){let [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)}
+function nameBy(arr,id){return (arr.find(x=>x.id===id)||{}).name||'—'}
+function showScreen(id,b){document.querySelectorAll('.screen').forEach(x=>x.classList.add('hidden'));$(id).classList.remove('hidden');document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderAll()}
+function moveMonth(n){viewDate.setMonth(viewDate.getMonth()+n);renderAll()} function goCurrent(){viewDate=new Date();viewDate.setDate(1);renderAll()}
+function setKind(k){kind=k;['Expense','Revenue','Fixed'].forEach(x=>$('t'+x).classList.remove('active'));$('t'+k[0].toUpperCase()+k.slice(1)).classList.add('active');$('expenseExtra').classList.toggle('hidden',k!=='expense');$('revenueExtra').classList.toggle('hidden',k!=='revenue');$('fixedExtra').classList.toggle('hidden',k!=='fixed');refreshDest()}
+function refreshSelects(){let currentCategory=$('category')?$('category').value:'';if(!db.categories)db.categories=['Geral','Mercado','Moradia','Transporte','Saúde','Lazer','Trabalho','Outros'];$('category').innerHTML=db.categories.map(x=>`<option value="${x}">${x}</option>`).join('');if(currentCategory&&db.categories.includes(currentCategory))$('category').value=currentCategory;let src=db.sources.map(x=>`<option value="${x.id}">${x.name}</option>`).join('');$('source').innerHTML='<option value="">Origem da receita</option>'+src;let p=db.profiles.map(x=>`<option value="${x.id}">${x.name}</option>`).join('');['profile','cardProfile','accountProfile'].forEach(id=>$(id).innerHTML=p);refreshDest()}
+function refreshDest(){let arr;if(kind==='revenue'||kind==='fixed'||$('payType').value==='account')arr=db.accounts;else arr=db.cards;$('dest').innerHTML=arr.length?arr.map(x=>`<option value="${x.id}">${x.name}</option>`).join(''):'<option value="">Cadastre primeiro</option>'}
+function invoiceYM(dateStr,card){let d=parseDate(dateStr),y=d.getFullYear(),m=d.getMonth();if(d.getDate()>Number(card.closing))m++;if(Number(card.due)<=Number(card.closing))m++;let inv=new Date(y,m,1);return ym(inv)}
+function installmentValue(e){return Number(e.value)/(Number(e.installments)||1)}
+function cardMonths(e){let c=db.cards.find(x=>x.id===e.dest); if(!c)return[];let base=invoiceYM(e.date,c),[y,m]=base.split('-').map(Number),out=[];for(let i=0;i<(e.installments||1);i++){let d=new Date(y,m-1+i,1);out.push(ym(d))}return out}
+function fixedApplies(e,target){return target>=e.date.slice(0,7)}
+function monthDiff(a,b){let [ay,am]=a.split('-').map(Number),[by,bm]=b.split('-').map(Number);return (by-ay)*12+(bm-am)}
+function renderDashboard(){let target=ym(viewDate);$('monthLabel').textContent=viewDate.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).replace(/^./,c=>c.toUpperCase());
+ let rev=db.entries.filter(e=>e.kind==='revenue'&&e.date.slice(0,7)===target).reduce((s,e)=>s+Number(e.value),0);
+ let received=db.entries.filter(e=>e.kind==='revenue'&&e.date.slice(0,7)===target).reduce((s,e)=>s+Number(e.receivedAmount!==undefined?e.receivedAmount:(e.status==='received'?e.value:0)),0);
+ let cards=0;db.entries.filter(e=>e.kind==='expense'&&e.payType==='card').forEach(e=>{if(cardMonths(e).includes(target))cards+=installmentValue(e)});
+ let fixed=db.entries.filter(e=>e.kind==='fixed'&&fixedApplies(e,target)).reduce((s,e)=>s+Number(e.value),0);
+ if(!db.prevMonthBalances)db.prevMonthBalances={};$('prevMonthBalance').value=db.prevMonthBalances[target]??'';
+ $('mRevenue').textContent=money(rev);$('mRevenueMeta').textContent=`Recebidas: ${money(received)} • Previstas: ${money(rev-received)}`;
+ $('dashReceiveBtn').style.display='block';
+ $('mCards').textContent=money(-cards);$('mCards').style.color='var(--bad)';
+ $('mFixed').textContent=money(-fixed);$('mFixed').style.color='var(--bad)';
+ let forecast=rev-fixed-cards;
+ $('mForecast').textContent=money(forecast);$('mForecast').style.color=forecast<0?'var(--bad)':'';
+ let fixedEntries=db.entries.filter(e=>e.kind==='fixed'&&fixedApplies(e,target));
+ $('fixedMonthList').innerHTML=fixedEntries.length?fixedEntries.map(e=>{let key=target+'|'+e.id,paid=!!db.fixedPayments[key];return `<div class="item ${paid?'paid-item':''}"><div><strong>${e.desc}</strong><div class="meta">${nameBy(db.profiles,e.profile)} • Vence dia ${e.dueDay||1} • ${paid?'✓ PAGO':'Pendente'}</div></div><div><div class="amount">${money(e.value)}</div><div class="actions"><button class="${paid?'':'paid-btn'}" onclick="toggleFixedPaid('${e.id}','${target}')">${paid?'Desfazer pagamento':'✓ Pagar'}</button></div></div></div>`}).join(''):'<div class="notice">Nenhuma conta fixa neste mês.</div>';
+ let accountExpenses=db.entries.filter(e=>e.kind==='expense'&&e.payType==='account'&&e.date.slice(0,7)===target).reduce((s,e)=>s+Number(e.value),0);
+ let totalExpenses=accountExpenses+fixed+cards;
+ let cat={};
+ db.entries.filter(e=>e.kind==='expense'&&e.payType==='account'&&e.date.slice(0,7)===target).forEach(e=>{let c=e.category||'Geral';cat[c]=(cat[c]||0)+Number(e.value)});
+ db.entries.filter(e=>e.kind==='fixed'&&fixedApplies(e,target)).forEach(e=>{let c=e.category||'Geral';cat[c]=(cat[c]||0)+Number(e.value)});
+ db.entries.filter(e=>e.kind==='expense'&&e.payType==='card').forEach(e=>{if(cardMonths(e).includes(target)){let c=e.category||'Geral';cat[c]=(cat[c]||0)+installmentValue(e)}});
+ let cats=Object.entries(cat).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]);
+ let palette=['#42a5f5','#ffb300','#7e57c2','#26a69a','#ef5350','#66bb6a','#ab47bc','#78909c','#ec407a','#8d6e63'];
+ let acc=0,parts=cats.map(([n,v],i)=>{let from=acc,to=acc+(totalExpenses?v/totalExpenses*100:0);acc=to;return `${palette[i%palette.length]} ${from}% ${to}%`});
+ let legend=cats.map(([n,v],i)=>`<div class="spend-legend-row"><span><i class="spend-dot" style="background:${palette[i%palette.length]}"></i>${n}</span><span>${money(v)} • ${(totalExpenses?v/totalExpenses*100:0).toFixed(1).replace('.',',')}%</span></div>`).join('');
+ $('summary').innerHTML=`<div class="spend-summary">
+   <div class="spend-row spend-total"><div><strong>💰 TOTAL DE GASTOS</strong><div class="meta">Gastos gerais do mês</div></div><div class="amount outgoing">${money(totalExpenses)}</div></div>
+   <div class="spend-chart-wrap">
+    <div class="spend-pie" style="background:${parts.length?'conic-gradient('+parts.join(',')+')':'#e5e7eb'}"><div class="spend-pie-center">${totalExpenses>0?'Gastos<br>'+money(totalExpenses):'Sem gastos<br>no mês'}</div></div>
+    <div class="spend-legend">${legend||'<div class="notice">Nenhum gasto neste mês.</div>'}</div>
+   </div>
+  </div>`
+
+}
+function setHistoryFilter(filter,btn){historyFilter=filter;document.querySelectorAll('#historyTabs button').forEach(x=>x.classList.remove('active'));if(btn)btn.classList.add('active');$('historyProfileWrap').classList.toggle('hidden',filter!=='profile');renderEntries()}
+function renderEntries(){let hp=$('historyProfile');if(hp){let cur=hp.value;hp.innerHTML=db.profiles.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');if(cur&&db.profiles.some(p=>p.id===cur))hp.value=cur}let sorted=[...db.entries].filter(e=>historyFilter==='profile'?(!hp||!hp.value||e.profile===hp.value):e.kind===historyFilter).sort((a,b)=>b.date.localeCompare(a.date));$('entries').innerHTML=sorted.length?sorted.map(e=>{let src=e.kind==='revenue'||e.kind==='fixed'||e.payType==='account'?nameBy(db.accounts,e.dest):nameBy(db.cards,e.dest);let typ=e.kind==='revenue'?(e.status==='received'?'Receita recebida':(Number(e.receivedAmount||0)>0?'Receita parcial':'Receita prevista')):e.kind==='fixed'?'Conta fixa':'Despesa';return `<div class="item"><div><strong>${e.desc}</strong><div class="meta">${e.date.split('-').reverse().join('/')} • ${nameBy(db.profiles,e.profile)} • ${src} • ${typ}${e.installments>1?' • '+e.installments+'x':''}</div></div><div><div class="amount">${money(e.value)}</div><div class="actions">${e.kind==='revenue'&&e.status!=='received'?`<button onclick="receive('${e.id}')">✓ Receber / parcial</button>`:''}<button onclick="editEntry('${e.id}')">Editar</button><button class="danger" onclick="delEntry('${e.id}')">Excluir</button></div></div></div>`}).join(''):'<div class="notice">Nenhum lançamento ainda.</div>'}
+function renderAccounts(){ $('accountList').innerHTML=db.accounts.length?db.accounts.map(a=>{let bal=Number(a.initial||0),current=ym(new Date());db.entries.forEach(e=>{if(e.kind==='revenue'){if((e.receivedAccount||e.dest)!==a.id)return;bal+=Number(e.receivedAmount!==undefined?e.receivedAmount:(e.status==='received'?e.value:0));return}if(e.dest!==a.id)return;if(e.kind==='expense'&&e.payType==='account')bal-=Number(e.value);if(e.kind==='fixed'){let startm=e.date.slice(0,7);if(startm<=current)bal-=Number(e.value)*(monthDiff(startm,current)+1)}});return `<div class="item ${bal<0?'negative':''}"><div><strong>${a.name}</strong><div class="meta">${nameBy(db.profiles,a.profile)}</div></div><div><div class="amount">${money(bal)}</div><div class="actions"><button class="danger" onclick="delAccount('${a.id}')">Excluir</button></div></div></div>`}).join(''):'<div class="notice">Cadastre uma conta para começar.</div>';
+ $('sourceList').innerHTML=db.sources.length?db.sources.map(x=>`<div class="item"><strong>${x.name}</strong><div class="actions"><button class="danger" onclick="delSource('${x.id}')">Excluir</button></div></div>`).join(''):'<div class="notice">Cadastre as empresas/origens das receitas.</div>';
+ $('profileList').innerHTML=db.profiles.map(p=>`<div class="item"><strong>${p.name}</strong><div class="actions">${db.profiles.length>1?`<button class="danger" onclick="delProfile('${p.id}')">Excluir</button>`:''}</div></div>`).join('');
+ let target=ym(viewDate),mov=db.entries.filter(e=>e.date.slice(0,7)===target&&(e.kind==='revenue'||(e.kind==='expense'&&e.payType==='account'))).sort((a,b)=>b.date.localeCompare(a.date));let aml=$('accountMonthList');if(aml)aml.innerHTML=mov.length?mov.map(e=>`<div class="item"><div><strong>${e.desc}</strong><div class="meta">${e.date.split('-').reverse().join('/')} • ${nameBy(db.accounts,e.dest)} • ${e.kind==='revenue'?'Receita':'Despesa'}</div></div><div class="amount ${e.kind==='expense'?'outgoing':''}">${money(e.value)}</div></div>`).join(''):'<div class="notice">Nenhuma movimentação em conta neste mês.</div>';
+}
+function renderCards(){ $('cardList').innerHTML=db.cards.length?db.cards.map(c=>`<div class="item"><div><strong>${c.name}</strong><div class="meta">${nameBy(db.profiles,c.profile)} • Fecha dia ${c.closing} • Vence dia ${c.due}${c.limit?' • Limite '+money(c.limit):''}</div></div><div class="actions"><button class="danger" onclick="delCard('${c.id}')">Excluir</button></div></div>`).join(''):'<div class="notice">Nenhum cartão cadastrado.</div>';
+ let months=[];for(let i=0;i<12;i++){let d=new Date(viewDate.getFullYear(),viewDate.getMonth()+i,1);months.push(d)};
+ $('futureBills').innerHTML=months.map(d=>{let target=ym(d),rows=db.cards.map(c=>{let t=0;db.entries.filter(e=>e.kind==='expense'&&e.payType==='card'&&e.dest===c.id).forEach(e=>{if(cardMonths(e).includes(target))t+=installmentValue(e)});return {c,t}}).filter(x=>x.t>0);let total=rows.reduce((s,x)=>s+x.t,0);return `<div class="bill-month"><div class="bill-head">${d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).replace(/^./,c=>c.toUpperCase())} • Total ${money(total)}</div>${rows.length?`<div class="list">${rows.map(({c,t})=>{let key=target+'|'+c.id,paid=!!db.cardPayments[key];return `<div class="item ${paid?'paid-item':''}"><div><strong>💳 ${c.name}</strong><div class="meta">${nameBy(db.profiles,c.profile)} • ${paid?'✓ PAGO':'Pendente'}</div></div><div><div class="amount">${money(t)}</div><div class="actions"><button class="${paid?'':'paid-btn'}" onclick="toggleCardPaid('${c.id}','${target}')">${paid?'Desfazer pagamento':'✓ Pagar'}</button></div></div></div>`}).join('')}</div>`:'<div class="notice">Sem faturas neste mês.</div>'}</div>`}).join('')}
+function toggleFixedPaid(id,target){if(!db.fixedPayments)db.fixedPayments={};let key=target+'|'+id;if(db.fixedPayments[key])delete db.fixedPayments[key];else db.fixedPayments[key]={paid:true,date:new Date().toISOString()};save()}
+function toggleCardPaid(id,target){if(!db.cardPayments)db.cardPayments={};let key=target+'|'+id;if(db.cardPayments[key])delete db.cardPayments[key];else db.cardPayments[key]={paid:true,date:new Date().toISOString()};save()}
+function renderReports(){let q=($('search')?.value||'').toLowerCase(),t=$('reportType')?.value||'';let rows=[...db.entries].filter(e=>(!q||e.desc.toLowerCase().includes(q))&&(!t||e.kind===t)).sort((a,b)=>b.date.localeCompare(a.date));$('reportRows').innerHTML=rows.map(e=>{let src=e.kind==='revenue'||e.kind==='fixed'||e.payType==='account'?nameBy(db.accounts,e.dest):nameBy(db.cards,e.dest);let typ=e.kind==='revenue'?'Receita':e.kind==='fixed'?'Conta fixa':'Despesa';return `<tr><td>${e.date.split('-').reverse().join('/')}</td><td>${e.desc}</td><td>${nameBy(db.profiles,e.profile)}</td><td>${src}</td><td>${typ}</td><td><strong>${money(e.value)}</strong></td></tr>`}).join('')}
+function savePrevMonthBalance(){if(!db.prevMonthBalances)db.prevMonthBalances={};let target=ym(viewDate),v=$('prevMonthBalance').value;db.prevMonthBalances[target]=v===''?'':Number(v);save()}
+function renderCategories(){$('categoryList').innerHTML=db.categories.length?db.categories.map(c=>`<div class="item"><div><strong>${c}</strong></div><div class="actions"><button onclick="renameCategory('${encodeURIComponent(c)}')">Editar</button><button class="danger" onclick="delCategory('${encodeURIComponent(c)}')">Excluir</button></div></div>`).join(''):'<div class="notice">Nenhuma categoria cadastrada.</div>'}
+function parseQuickText(text){let clean=(text||'').trim();let m=clean.match(/(?:r\$\s*)?(\d+(?:[.,]\d{1,2})?)(?:\s*reais?)?/i);let value=m?Number(m[1].replace(',','.')):0;let desc=clean;if(m)desc=(clean.slice(0,m.index)+clean.slice(m.index+m[0].length)).replace(/\s+/g,' ').trim();desc=desc.replace(/\b(reais?|real)\b/gi,'').trim();return {desc:desc||'Lançamento rápido',value:value||0}}
+function saveQuick(){let text=$('quickText').value.trim();if(!text)return alert('Fale ou digite uma descrição e, se quiser, o valor.');let p=parseQuickText(text);db.quickEntries.push({id:uid(),text,desc:p.desc,value:p.value,date:new Date().toISOString().slice(0,10),createdAt:new Date().toISOString()});$('quickText').value='';save()}
+function renderQuickPending(){let box=$('quickPending');if(!box)return;let q=db.quickEntries||[];box.innerHTML=q.length?q.map(x=>`<div class="item pending-item"><div><strong>${x.desc}</strong><div class="meta">${x.date.split('-').reverse().join('/')} • ${x.value?money(x.value):'Valor a completar'} • Pendente</div><div class="meta">“${x.text}”</div></div><div class="actions"><button class="primary" onclick="completeQuick('${x.id}')">Completar</button><button class="danger" onclick="delQuick('${x.id}')">Excluir</button></div></div>`).join(''):'<div class="notice">Nenhum lançamento pendente. ✓</div>'}
+function completeQuick(id){let x=(db.quickEntries||[]).find(q=>q.id===id);if(!x)return;completingQuickId=id;editingEntryId=null;setKind('expense');refreshSelects();$('date').value=x.date;$('desc').value=x.desc;$('value').value=x.value||'';$('entryForm').querySelector('button[type="submit"]').textContent='Salvar e concluir';window.scrollTo({top:$('entryForm').getBoundingClientRect().top+window.scrollY-100,behavior:'smooth'})}
+function delQuick(id){if(confirm('Excluir este lançamento pendente?')){db.quickEntries=(db.quickEntries||[]).filter(x=>x.id!==id);save()}}
+function renderAll(){refreshSelects();renderDashboard();renderEntries();renderAccounts();renderCards();renderReports();renderCategories();renderQuickPending()}
+$('entryForm').onsubmit=e=>{e.preventDefault();if(!$('dest').value)return alert('Cadastre uma conta ou cartão primeiro.');
+ let obj={id:editingEntryId||uid(),kind,profile:$('profile').value,date:$('date').value,desc:$('desc').value.trim(),value:Number($('value').value),category:$('category').value,dest:$('dest').value,payType:kind==='expense'?$('payType').value:'account',installments:kind==='expense'&&$('payType').value==='card'?Number($('installments').value||1):1,status:kind==='revenue'?$('revStatus').value:'',source:kind==='revenue'?$('source').value:'',receivedAmount:kind==='revenue'&&$('revStatus').value==='received'?Number($('value').value):0,dueDay:kind==='fixed'?Number($('dueDay').value||1):0};
+ if(editingEntryId){let i=db.entries.findIndex(x=>x.id===editingEntryId);if(i>=0)db.entries[i]=obj;editingEntryId=null}else db.entries.push(obj);
+ if(completingQuickId){db.quickEntries=(db.quickEntries||[]).filter(x=>x.id!==completingQuickId);completingQuickId=null;}
+ e.target.reset();$('date').value=new Date().toISOString().slice(0,10);$('installments').value=1;e.target.querySelector('button[type="submit"]').textContent='Salvar lançamento';save()}
+$('cardForm').onsubmit=e=>{e.preventDefault();db.cards.push({id:uid(),name:$('cardName').value.trim(),profile:$('cardProfile').value,closing:Number($('closing').value),due:Number($('due').value),limit:Number($('limit').value||0)});e.target.reset();save()}
+$('accountForm').onsubmit=e=>{e.preventDefault();db.accounts.push({id:uid(),name:$('accountName').value.trim(),profile:$('accountProfile').value,initial:Number($('initial').value||0)});e.target.reset();save()}
+$('profileForm').onsubmit=e=>{e.preventDefault();db.profiles.push({id:uid(),name:$('profileName').value.trim()});e.target.reset();save()}
+function editEntry(id){let x=db.entries.find(e=>e.id===id);if(!x)return;editingEntryId=id;setKind(x.kind);refreshSelects();$('profile').value=x.profile;$('date').value=x.date;$('desc').value=x.desc;$('value').value=x.value;$('category').value=x.category||'Geral';if(x.kind==='expense'){$('payType').value=x.payType||'account';refreshDest();$('dest').value=x.dest;$('installments').value=x.installments||1}else{refreshDest();$('dest').value=x.dest}if(x.kind==='revenue'){$('source').value=x.source||'';$('revStatus').value=x.status||'planned'}if(x.kind==='fixed')$('dueDay').value=x.dueDay||1;$('entryForm').querySelector('button[type="submit"]').textContent='Salvar alterações';showScreen('launch',document.querySelector('nav button:nth-child(2)'));window.scrollTo({top:0,behavior:'smooth'})}
+function delEntry(id){if(confirm('Excluir este lançamento?')){db.entries=db.entries.filter(x=>x.id!==id);save()}}
+function payRevenueFromDash(){let target=ym(viewDate);let pending=db.entries.filter(e=>e.kind==='revenue'&&e.date.slice(0,7)===target&&Number(e.receivedAmount||0)<Number(e.value));if(!pending.length){alert('Não há receita pendente neste mês.');return}let x=pending[0];if(pending.length>1){let opts=pending.map((e,i)=>`${i+1} - ${e.desc} • Falta ${money(Number(e.value)-Number(e.receivedAmount||0))}`).join('\n');let choice=prompt('Qual receita deseja pagar/receber?\n'+opts,'1');if(choice===null)return;let idx=Number(choice)-1;if(!pending[idx]){alert('Opção inválida.');return}x=pending[idx]}receive(x.id)}
+function receive(id){let x=db.entries.find(x=>x.id===id); if(!x)return;if(!db.accounts.length){alert('Cadastre uma conta bancária antes de receber a receita.');return}let already=Number(x.receivedAmount||0), remaining=Math.max(0,Number(x.value)-already);if(remaining<=0){alert('Esta receita já foi recebida integralmente.');return}let opts=db.accounts.map((a,i)=>`${i+1} - ${a.name}`).join('\n');let choice=prompt('Em qual conta entrou?\n'+opts, '1'); if(choice===null)return;let idx=Number(choice)-1;if(!db.accounts[idx]){alert('Conta inválida.');return}let v=prompt('Valor recebido agora:', remaining.toFixed(2).replace('.',',')); if(v===null)return;v=Number(String(v).replace(',','.')); if(!Number.isFinite(v)||v<=0){alert('Valor inválido.');return}if(already+v>Number(x.value)+0.001){alert('O recebido não pode ultrapassar o valor previsto.');return}x.receivedAmount=already+v; x.receivedAccount=db.accounts[idx].id;x.status=x.receivedAmount>=Number(x.value)-0.001?'received':'planned'; save()}
+function delAccount(id){if(db.entries.some(e=>e.dest===id))return alert('Esta conta possui lançamentos. Exclua ou mova os lançamentos primeiro.');if(confirm('Excluir conta?')){db.accounts=db.accounts.filter(x=>x.id!==id);save()}}
+function delCard(id){if(db.entries.some(e=>e.dest===id))return alert('Este cartão possui lançamentos. Exclua os lançamentos primeiro.');if(confirm('Excluir cartão?')){db.cards=db.cards.filter(x=>x.id!==id);save()}}
+function delProfile(id){if(db.accounts.some(x=>x.profile===id)||db.cards.some(x=>x.profile===id)||db.entries.some(x=>x.profile===id))return alert('Este perfil está em uso.');if(confirm('Excluir perfil?')){db.profiles=db.profiles.filter(x=>x.id!==id);save()}}
+$('categoryForm').onsubmit=e=>{e.preventDefault();let n=$('categoryName').value.trim();if(!n)return;if(db.categories.some(x=>x.toLowerCase()===n.toLowerCase()))return alert('Esta categoria já existe.');db.categories.push(n);e.target.reset();save()}
+function renameCategory(encoded){let old=decodeURIComponent(encoded),n=prompt('Novo nome da categoria:',old);if(n===null)return;n=n.trim();if(!n||n===old)return;if(db.categories.some(x=>x!==old&&x.toLowerCase()===n.toLowerCase()))return alert('Esta categoria já existe.');db.categories=db.categories.map(x=>x===old?n:x);db.entries.forEach(e=>{if(e.category===old)e.category=n});save()}
+function delCategory(encoded){let c=decodeURIComponent(encoded);if(db.entries.some(e=>e.category===c))return alert('Esta categoria está em uso. Altere os lançamentos antes de excluir.');if(confirm('Excluir a categoria '+c+'?')){db.categories=db.categories.filter(x=>x!==c);save()}}
+$('sourceForm').onsubmit=e=>{e.preventDefault();db.sources.push({id:uid(),name:$('sourceName').value.trim()});e.target.reset();save()}
+function delSource(id){if(db.entries.some(e=>e.source===id))return alert('Esta origem está em uso em uma receita.');if(confirm('Excluir origem?')){db.sources=db.sources.filter(x=>x.id!==id);save()}}
+function backupData(){let blob=new Blob([JSON.stringify({version:2,exportedAt:new Date().toISOString(),db},null,2)],{type:'application/json'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='controle-financeiro-backup-cliente.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+function restoreData(file){if(!file)return;let r=new FileReader();r.onload=()=>{try{let o=JSON.parse(r.result),d=o.db||o;if(!Array.isArray(d.entries)||!Array.isArray(d.cards)||!Array.isArray(d.accounts))throw 0;if(confirm('Restaurar este backup e substituir os dados locais?')){db=d;if(!db.sources)db.sources=[];if(!db.categories)db.categories=['Geral','Mercado','Moradia','Transporte','Saúde','Lazer','Trabalho','Outros'];if(!db.quickEntries)db.quickEntries=[];save();alert('Backup restaurado.')}}catch(e){alert('Arquivo de backup inválido.')}};r.readAsText(file)}
+$('date').value=new Date().toISOString().slice(0,10);renderAll();
+</script>
+<script>
+if ('serviceWorker' in navigator) {window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}
+</script>
+
+</body></html>
